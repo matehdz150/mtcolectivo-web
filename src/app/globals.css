@@ -1,26 +1,99 @@
 @import "tailwindcss";
 
+/*
+ * MTC Design System tokens (mirrors the design system's tokens.json).
+ * Neutral greys carry the UI; mint is the single accent.
+ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --canvas: #f7f7f7;
+  --surface: #ffffff;
+  --card: #f0f0f0;
+  --control: #e6e6e7;
+  --control-strong: #d4d4d6;
+  --line: #dededf;
+  --ink: #0b0b0b;
+  --ink-secondary: #3a3a3c;
+  --ink-muted: #636366;
+  --ink-faint: #9a9a9e;
+  --mint: #72f296;
+  --mint-soft: #dcfbe5;
+  --mint-deep: #15803d;
+  --on-mint: #062a12;
+  --danger: #b42318;
+  --danger-soft: #fbd9cd;
+  --night: #3b3c3f;
+  --night-raised: #55575b;
+  --on-night: #f5f5f5;
+  --on-night-muted: #b4b4b8;
+  --focus: #0b0b0b;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-card: var(--card);
+  --color-control: var(--control);
+  --color-control-strong: var(--control-strong);
+  --color-line: var(--line);
+  --color-ink: var(--ink);
+  --color-ink-secondary: var(--ink-secondary);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-faint: var(--ink-faint);
+  --color-mint: var(--mint);
+  --color-mint-soft: var(--mint-soft);
+  --color-mint-deep: var(--mint-deep);
+  --color-on-mint: var(--on-mint);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-night: var(--night);
+  --color-night-raised: var(--night-raised);
+  --color-on-night: var(--on-night);
+  --color-on-night-muted: var(--on-night-muted);
+  --color-focus: var(--focus);
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+  --radius-2xl: 32px;
+
+  --shadow-row: 0 1px 2px rgba(11, 11, 11, 0.06);
+  --shadow-float: 0 24px 60px -24px rgba(11, 11, 11, 0.28);
+  --shadow-mint: 0 10px 24px -10px rgba(21, 128, 61, 0.55);
+  --shadow-bar: 0 18px 40px -16px rgba(11, 11, 11, 0.45);
+
+  /* SF Pro on Apple devices, Geist everywhere else. */
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", var(--font-geist-sans), system-ui, sans-serif;
+  --font-mono: "SF Mono", ui-monospace, var(--font-geist-mono), Menlo, monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+::selection {
+  background: color-mix(in srgb, var(--mint) 60%, transparent);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--surface);
+  color: var(--ink);
+  font-family: var(--font-sans);
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.animate-rise-in {
+  animation: rise-in 600ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-rise-in {
+    animation: none !important;
+  }
 }

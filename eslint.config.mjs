@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // copied from mtcolectivo-infra by scripts/sync-shared.mjs
+    "src/shared/**",
   ]),
 ]);
 

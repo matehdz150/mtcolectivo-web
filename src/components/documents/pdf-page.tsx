@@ -1,79 +1,44 @@
-import type { CSSProperties, MouseEvent, ReactNode } from "react";
+"use client";
+
+import { useCallback, useEffect, useRef, type CSSProperties, type MouseEvent, type PointerEvent, type ReactNode } from "react";
+
+import { renderPage, type PDFDocumentProxy } from "@/lib/pdf";
 
 export const PAGE_W = 600;
 export const PAGE_H = 776;
 
 /**
- * Stand-in for a rendered PDF page (600×776 points). The real app renders the
- * uploaded file with pdf.js into this same box; field coordinates are shared.
+ * One page of the uploaded PDF drawn into a 600×776 box. Field coordinates
+ * use this same box (the API maps it onto the real page size), so what is
+ * placed here lands in the same spot on the generated document.
  */
-export function PdfPage({ page, children, className = "", onClick, style }: { page: number; children?: ReactNode; className?: string; onClick?: (e: MouseEvent<HTMLDivElement>) => void; style?: CSSProperties }) {
+export function PdfPage({ pdf, page, children, className = "", onClick, style, onCanvas, onPointerDown, onPointerMove, onPointerUp }: { pdf: PDFDocumentProxy | null; page: number; children?: ReactNode; className?: string; onClick?: (e: MouseEvent<HTMLDivElement>) => void; style?: CSSProperties; onCanvas?: (canvas: HTMLCanvasElement | null) => void; onPointerDown?: (e: PointerEvent<HTMLDivElement>) => void; onPointerMove?: (e: PointerEvent<HTMLDivElement>) => void; onPointerUp?: (e: PointerEvent<HTMLDivElement>) => void }) {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  // Stable identity: a new ref callback every render would detach and reattach the canvas each time.
+  const setCanvas = useCallback(
+    (el: HTMLCanvasElement | null) => {
+      canvasRef.current = el;
+      onCanvas?.(el);
+    },
+    [onCanvas],
+  );
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!pdf || !canvas) return;
+    const render = renderPage(pdf, page, canvas, PAGE_W * 2);
+    render.done.catch((err) => {
+      console.error("No se pudo dibujar la página del PDF", err);
+      canvas.getContext("2d")?.clearRect(0, 0, canvas.width, canvas.height);
+    });
+    return render.cancel;
+  }, [pdf, page]);
+
   return (
-    <div onClick={onClick} style={{ width: PAGE_W, height: PAGE_H, ...style }} className={`relative shrink-0 rounded-md bg-white text-[11px] text-ink shadow-float ${className}`}>
-      {page === 1 ? <ContractPageOne /> : <RulesPage />}
+    <div onClick={onClick} onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} style={{ width: PAGE_W, height: PAGE_H, ...style }} className={`relative shrink-0 rounded-md bg-white text-[11px] text-ink shadow-float ${className}`}>
+      <canvas ref={setCanvas} aria-hidden="true" className="absolute inset-0 size-full rounded-md" />
+      {!pdf ? <span className="absolute inset-0 flex items-center justify-center text-sm text-ink-muted">Cargando PDF…</span> : null}
       {children}
     </div>
-  );
-}
-
-const Text = ({ x, y, children, bold, size = 11 }: { x: number; y: number; children: ReactNode; bold?: boolean; size?: number }) => (
-  <span className="absolute whitespace-nowrap" style={{ left: x, top: y, fontSize: size, fontWeight: bold ? 700 : 400 }}>
-    {children}
-  </span>
-);
-const Bar = ({ x, y, w }: { x: number; y: number; w: number }) => <span aria-hidden="true" className="absolute h-1 rounded-sm bg-[#e4e4e6]" style={{ left: x, top: y, width: w }} />;
-const Line = ({ x, y, w }: { x: number; y: number; w: number }) => <span aria-hidden="true" className="absolute h-px bg-ink" style={{ left: x, top: y, width: w }} />;
-
-function ContractPageOne() {
-  return (
-    <>
-      <Text x={60} y={56} bold size={13}>
-        CONTRATO DE PRESTACIÓN DE SERVICIOS DE TRANSPORTE
-      </Text>
-      <Text x={380} y={94}>Folio:</Text>
-      <Text x={380} y={120}>Fecha:</Text>
-      {[480, 460, 470, 300].map((w, i) => (
-        <Bar key={i} x={60} y={160 + i * 12} w={w} />
-      ))}
-      <Text x={60} y={252}>Contratante:</Text>
-      <Text x={400} y={252}>Celular:</Text>
-      <Bar x={60} y={288} w={480} />
-      <Bar x={60} y={300} w={380} />
-      <Text x={60} y={324} bold size={12}>
-        Datos del servicio
-      </Text>
-      <Text x={60} y={354}>Fecha del servicio:</Text>
-      <Text x={60} y={382}>Salida:</Text>
-      <Text x={60} y={410}>Destino:</Text>
-      <Text x={60} y={438}>Unidad:</Text>
-      <Text x={60} y={472} bold size={12}>
-        Importe
-      </Text>
-      <Text x={60} y={502}>Total:</Text>
-      <Text x={250} y={502}>Anticipo:</Text>
-      <Text x={420} y={502}>Por liquidar:</Text>
-      {[480, 470, 450, 240].map((w, i) => (
-        <Bar key={i} x={60} y={548 + i * 12} w={w} />
-      ))}
-      <Line x={60} y={712} w={200} />
-      <Text x={60} y={718}>Firma del cliente</Text>
-      <Line x={340} y={712} w={200} />
-      <Text x={340} y={718}>MT Colectivo</Text>
-    </>
-  );
-}
-
-function RulesPage() {
-  return (
-    <>
-      <Text x={60} y={56} bold size={13}>
-        REGLAMENTO Y CONDICIONES DEL SERVICIO
-      </Text>
-      {Array.from({ length: 26 }, (_, i) => (
-        <Bar key={i} x={60} y={100 + i * 18 + Math.floor(i / 5) * 14} w={[480, 470, 460, 440, 300][i % 5]} />
-      ))}
-      <Line x={60} y={712} w={200} />
-      <Text x={60} y={718}>Firma del cliente</Text>
-    </>
   );
 }

@@ -3,13 +3,13 @@ import type { VehicleKind } from "@/lib/types";
 import { Icon, type IconName } from "./icon";
 import { ProgressBar } from "./meters";
 import { Tag } from "./misc";
-import { VehicleArt } from "./vehicle-art";
+import { VEHICLE_ART_WIDTH, VehicleArt } from "./vehicle-art";
 
 export interface VehicleCardProps {
   code: string;
   kind: VehicleKind;
-  driver: string;
-  plates: string;
+  driver?: string;
+  plates?: string;
   model: string;
   tag: string;
   progressLabel: string;
@@ -17,6 +17,8 @@ export interface VehicleCardProps {
   progress: number;
   stats: { icon: IconName; label: string; value: string }[];
   featured?: boolean;
+  /** Opens the unit for editing. */
+  onOpen?: () => void;
 }
 
 /** Fleet unit card: illustration, identity, owner tag, usage and stats. */
@@ -26,10 +28,11 @@ export function VehicleCard(p: VehicleCardProps) {
       className={`flex flex-col gap-3.5 rounded-xl p-4 ${p.featured ? "bg-[linear-gradient(165deg,var(--mint)_0%,var(--mint-soft)_62%,var(--surface)_100%)] [&_.text-ink-muted]:text-on-mint" : "bg-card"}`}
     >
       <div className="flex min-h-24 items-start justify-between">
-        <VehicleArt kind={p.kind} width={132} />
+        <VehicleArt kind={p.kind} width={Math.round(124 * VEHICLE_ART_WIDTH[p.kind])} />
         <button
           type="button"
           aria-label={`Abrir ${p.code}`}
+          onClick={p.onOpen}
           className={`flex size-9 items-center justify-center rounded-md ${p.featured ? "bg-white/55 text-on-mint" : "bg-control hover:bg-control-strong"}`}
         >
           <Icon name="expand" />
@@ -37,16 +40,18 @@ export function VehicleCard(p: VehicleCardProps) {
       </div>
       <div className="flex flex-col gap-1">
         <div className="text-2xl font-bold leading-tight tracking-[-0.02em]">{p.code}</div>
-        <div className="flex items-center justify-between gap-2 text-sm font-medium">
-          <span className="inline-flex min-w-0 items-center gap-1.5">
-            <Icon name="idCard" size={15} />
-            <span className="truncate">{p.driver}</span>
-          </span>
-          <span className="inline-flex shrink-0 items-center gap-1.5 text-xs font-normal text-ink-muted">
-            <Icon name="phone" size={13} />
-            {p.plates}
-          </span>
-        </div>
+        {p.driver || p.plates ? (
+          <div className="flex items-center justify-between gap-2 text-sm font-medium">
+            <span className="inline-flex min-w-0 items-center gap-1.5">
+              <Icon name="idCard" size={15} />
+              <span className="truncate">{p.driver ?? "—"}</span>
+            </span>
+            <span className="inline-flex shrink-0 items-center gap-1.5 text-xs font-normal text-ink-muted">
+              <Icon name="phone" size={13} />
+              {p.plates ?? "—"}
+            </span>
+          </div>
+        ) : null}
         <div className="text-xs text-ink-muted">{p.model}</div>
       </div>
       <div>

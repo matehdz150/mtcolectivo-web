@@ -9,8 +9,8 @@ const MINT_GRADIENT = "bg-[linear-gradient(160deg,var(--mint)_0%,var(--mint-soft
 
 const FEATURES = [
   { title: "Precio al instante", body: "La unidad y la tarifa salen de los pasajeros." },
-  { title: "Orden en PDF", body: "Lista para enviar por WhatsApp." },
-  { title: "Pagos al día", body: "Anticipos, saldos y proveedores en un lugar." },
+  { title: "Orden en PDF", body: "Se arma sola y se descarga al momento." },
+  { title: "Pagos al día", body: "Anticipos y saldos de cada cliente en un lugar." },
 ];
 
 function Logo({ className }: { className: string }) {

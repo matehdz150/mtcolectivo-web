@@ -8,7 +8,8 @@ export const ORDER_STATUS: Record<OrderStatus, { label: string; tone: BadgeTone 
   late: { label: "Pago vencido", tone: "delayed" },
   paid: { label: "Liquidada", tone: "completed" },
   done: { label: "Realizada", tone: "completed" },
+  cancelled: { label: "Cancelada", tone: "pending" },
 };
 
-export const paidAmount = (o: Order) => o.payments.reduce((sum, p) => sum + p.amount, 0);
-export const dueAmount = (o: Order) => Math.max(0, o.total - paidAmount(o));
+export const paidAmount = (o: Pick<Order, "payments">) => o.payments.reduce((sum, p) => sum + p.amount, 0);
+export const dueAmount = (o: Pick<Order, "payments" | "total">) => Math.max(0, Math.round((o.total - paidAmount(o)) * 100) / 100);

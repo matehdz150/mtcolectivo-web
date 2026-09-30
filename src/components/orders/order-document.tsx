@@ -1,7 +1,7 @@
 import Image from "next/image";
 
 import { durationHours, hoursLabel, longDate, money, money2, numericDate, time12 } from "@/lib/format";
-import type { OrderLine, Payment, RouteType, UnitCapacity } from "@/lib/types";
+import type { OrderLine, Payment, RouteType } from "@/lib/types";
 
 export interface OrderDocumentData {
   folio: string;
@@ -13,11 +13,13 @@ export interface OrderDocumentData {
   departureTime: string;
   returnTime: string | null;
   route: RouteType;
-  units: UnitCapacity[];
+  units: number[];
   lines: OrderLine[];
   total: number | null;
   payments: Pick<Payment, "amount" | "date">[];
-  extras: { hour: number; move: number };
+  /** What each manual extra costs for this unit, e.g. "Horas extra" $500. */
+  extraCharges: { label: string; amount: number }[];
+  itinerary?: string;
 }
 
 const EQUIPMENT = ["Seguro de viajeros", "Asientos reclinables", "Kit de sanitización", "Auto-estéreo bluetooth", "Vidrios polarizados", "GPS"];
@@ -105,7 +107,14 @@ export function OrderDocument({ data }: { data: OrderDocumentData }) {
       <div className="flex flex-col gap-0.5 rounded-[10px] bg-[#f4f4f5] px-3 py-2.5">
         <b>Importante</b>
         <span>
-          Cada movimiento extra (local) tiene un costo de <b>{money(data.extras.move)}</b>, considerando los kilómetros y el tiempo. Se cobra hora extra <b>{money(data.extras.hour)}</b>.
+          {data.extraCharges.length
+            ? data.extraCharges.map((c, i) => (
+                <span key={c.label}>
+                  {i > 0 ? " · " : ""}
+                  {c.label}: <b>{money(c.amount)}</b>
+                </span>
+              ))
+            : "Los servicios adicionales se cotizan aparte."}
         </span>
         <span className="text-ink-secondary">Incluye operador, viáticos, gasolina, casetas y seguro de viajero.</span>
       </div>
@@ -116,6 +125,13 @@ export function OrderDocument({ data }: { data: OrderDocumentData }) {
         <span>2. Depositar a la cuenta asignada.</span>
         <span>3. Respetar los horarios contratados y el reglamento del contrato.</span>
       </div>
+
+      {data.itinerary ? (
+        <div className="flex flex-col gap-1 border-t border-[#ececed] pt-3">
+          <b className="text-center">ITINERARIO</b>
+          <span className="whitespace-pre-line">{data.itinerary}</span>
+        </div>
+      ) : null}
 
       <div className="mt-2 flex flex-wrap justify-center gap-x-4 gap-y-1 border-t border-[#ececed] pt-2.5 text-[10px] font-semibold text-[#00843f]">
         <span>www.mtcolectivo.mx</span>

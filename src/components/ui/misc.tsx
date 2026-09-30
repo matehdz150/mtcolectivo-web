@@ -14,15 +14,15 @@ export function Tag({ children, size = "md" }: { children: ReactNode; size?: "sm
   );
 }
 
-export function PageHeader({ title, subtitle, crumb, actions }: { title: ReactNode; subtitle?: ReactNode; crumb?: ReactNode; actions?: ReactNode }) {
+export function PageHeader({ title, subtitle, crumb, actions, inlineActions = false }: { title: ReactNode; subtitle?: ReactNode; crumb?: ReactNode; actions?: ReactNode; inlineActions?: boolean }) {
   return (
-    <div className="flex flex-wrap items-end justify-between gap-6">
+    <div className="flex flex-wrap items-end justify-between gap-6 max-lg:gap-3">
       <div className="flex flex-col gap-1.5">
         {crumb ? <nav aria-label="Ruta" className="text-[13px] text-ink-muted">{crumb}</nav> : null}
-        <h1 className="text-[40px] font-normal leading-[1.05] tracking-[-0.03em] xl:text-5xl">{title}</h1>
+        <h1 className="text-[40px] font-normal leading-[1.05] tracking-[-0.03em] max-lg:text-[34px] max-lg:font-bold xl:text-5xl">{title}</h1>
         {subtitle ? <p className="text-sm text-ink-muted">{subtitle}</p> : null}
       </div>
-      {actions ? <div className="flex flex-wrap items-center gap-2">{actions}</div> : null}
+      {actions ? <div className={`flex flex-wrap items-center gap-2 ${inlineActions ? "" : "max-lg:w-full"}`}>{actions}</div> : null}
     </div>
   );
 }

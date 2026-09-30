@@ -97,3 +97,218 @@ body {
     animation: none !important;
   }
 }
+
+/*
+ * Document editor: the page looks like the PDF the API prints (same fonts
+ * sizes, spacing, colors) so what you write is close to what you get.
+ */
+.doc-editor {
+  min-height: 560px;
+  padding: 36px 44px;
+  font-family: Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 13.3px;
+  line-height: 1.25;
+  color: #0f0f12;
+  outline: none;
+}
+.doc-editor p { margin: 0 0 6.6px; min-height: 1.25em; }
+.doc-editor h1 { margin: 10px 0 8px; font-size: 21px; font-weight: 700; }
+.doc-editor h2 { margin: 10px 0 8px; font-size: 17px; font-weight: 700; }
+.doc-editor h3 { margin: 10px 0 8px; font-size: 15px; font-weight: 700; }
+.doc-editor ul { margin: 0 0 8px; padding-left: 22px; list-style: disc; }
+.doc-editor ol { margin: 0 0 8px; padding-left: 22px; list-style: decimal; }
+.doc-editor li > p { margin: 0 0 3px; }
+.doc-editor blockquote { margin: 0 0 7px 14px; font-style: italic; color: #5b5b63; }
+.doc-editor hr { margin: 8px 0; border: 0; border-top: 1px solid #e3e3e6; }
+.doc-editor a { color: #1a56db; text-decoration: underline; }
+.doc-editor img { display: inline-block; max-width: 100%; height: auto; }
+.doc-editor img.ProseMirror-selectednode { outline: 2px solid #0b0b0b; }
+.doc-editor table { width: 100%; margin: 2px 0 10px; border-collapse: collapse; table-layout: fixed; }
+.doc-editor td, .doc-editor th { position: relative; min-width: 24px; padding: 3px 5px; border: 1px solid #e3e3e6; vertical-align: top; }
+.doc-editor th { background: #f4f4f5; font-weight: 700; text-align: left; }
+.doc-editor table[data-borders="false"] td, .doc-editor table[data-borders="false"] th { border-color: #efeff1; border-style: dashed; }
+.doc-editor .selectedCell::after { content: ""; position: absolute; inset: 0; background: rgba(21, 128, 61, 0.14); pointer-events: none; }
+.doc-editor div[data-banner] { margin: 0 0 9px; padding: 6px 10px; background: #00843f; color: #fff; font-weight: 700; }
+.doc-editor .doc-token { padding: 0 2px; border-radius: 4px; background: #dcfbe5; color: #062a12; }
+.doc-editor .doc-token-bad { padding: 0 2px; border-radius: 4px; background: #fbd9cd; color: #b42318; text-decoration: underline wavy; }
+.doc-editor .doc-marker { padding: 0 2px; border-radius: 4px; background: #e6e6e7; color: #3a3a3c; font-family: ui-monospace, monospace; font-size: 12px; }
+.doc-editor p.is-editor-empty:first-child::before { content: attr(data-placeholder); float: left; height: 0; color: #9a9a9e; pointer-events: none; }
+
+/* Phone: sliding rows (filters, summary cards, wide tables) keep scrolling but do not draw a scrollbar. */
+@media (max-width: 1023px) {
+  .overflow-x-auto {
+    scrollbar-width: none;
+  }
+  .overflow-x-auto::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* ---- Motion: short, quiet entrances and exits ---------------------------------- */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes fade-out {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+}
+@keyframes pop-out {
+  to {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+}
+@keyframes sheet-up {
+  from {
+    transform: translateY(100%);
+  }
+}
+@keyframes sheet-down {
+  to {
+    transform: translateY(100%);
+  }
+}
+@keyframes step-in {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+}
+
+/* Each screen: its blocks rise in one after another. */
+.anim-page > * {
+  animation: fade-up 360ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+.anim-page > *:nth-child(2) { animation-delay: 40ms; }
+.anim-page > *:nth-child(3) { animation-delay: 80ms; }
+.anim-page > *:nth-child(4) { animation-delay: 120ms; }
+.anim-page > *:nth-child(5) { animation-delay: 160ms; }
+.anim-page > *:nth-child(n + 6) { animation-delay: 200ms; }
+
+/* Cards of a list: appear together with a small stagger. */
+.anim-list > * {
+  animation: fade-up 320ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+.anim-list > *:nth-child(2) { animation-delay: 30ms; }
+.anim-list > *:nth-child(3) { animation-delay: 60ms; }
+.anim-list > *:nth-child(4) { animation-delay: 90ms; }
+.anim-list > *:nth-child(5) { animation-delay: 120ms; }
+.anim-list > *:nth-child(n + 6) { animation-delay: 150ms; }
+
+/* Step of the phone flow. */
+.anim-step {
+  animation: step-in 260ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+/* Native dialogs. */
+dialog.anim-dialog[open] {
+  animation: pop-in 240ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+dialog.anim-dialog[open]::backdrop {
+  animation: fade-in 240ms ease-out both;
+}
+dialog.anim-dialog.is-closing[open] {
+  animation: pop-out 170ms ease-in forwards;
+}
+dialog.anim-dialog.is-closing[open]::backdrop {
+  animation: fade-out 170ms ease-in forwards;
+}
+
+/* Dim layer with a sheet that slides up, and full-screen panels. */
+.anim-overlay {
+  animation: fade-in 200ms ease-out both;
+}
+.anim-overlay.is-closing {
+  animation: fade-out 180ms ease-in forwards;
+}
+.anim-sheet,
+.anim-full {
+  animation: sheet-up 320ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.anim-overlay.is-closing .anim-sheet,
+.anim-full.is-closing {
+  animation: sheet-down 190ms ease-in forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anim-page > *,
+  .anim-list > *,
+  .anim-step,
+  .anim-overlay,
+  .anim-sheet,
+  .anim-full,
+  dialog.anim-dialog,
+  dialog.anim-dialog::backdrop {
+    animation: none !important;
+  }
+}
+
+/* Date picker panel: a sheet on the phone, a small pop on the desktop. */
+.anim-sheet-mobile {
+  animation: sheet-up 300ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@media (min-width: 1024px) {
+  .anim-sheet-mobile {
+    animation: pop-in 180ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .anim-sheet-mobile {
+    animation: none !important;
+  }
+}
+
+/* ---- Dark theme: same tokens, night values ------------------------------------- */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --canvas: #0e0e0f;
+  --surface: #19191b;
+  --card: #242426;
+  --control: #2d2d30;
+  --control-strong: #3b3b3f;
+  --line: #2f2f33;
+  --ink: #f5f5f5;
+  --ink-secondary: #d2d2d6;
+  --ink-muted: #9d9da3;
+  --ink-faint: #6d6d73;
+  --mint-soft: #143a25;
+  --mint-deep: #62e08c;
+  --danger: #ff8d7d;
+  --danger-soft: #3d1d18;
+  --focus: #f5f5f5;
+}
+
+/* Switching theme: the new colors spread out as a circle from the switch. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-new(root) {
+  animation: theme-reveal 550ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes theme-reveal {
+  from {
+    clip-path: circle(0 at var(--vt-x, 50%) var(--vt-y, 0));
+  }
+  to {
+    clip-path: circle(150vmax at var(--vt-x, 50%) var(--vt-y, 0));
+  }
+}
